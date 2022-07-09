@@ -1,4 +1,4 @@
-import User from "../../models/user.model";
+import User from "../models/user.model";
 import CONSTANTS from "../constants";
 
 const userDaoError = (err: any, fnName: string) => {

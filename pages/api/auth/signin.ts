@@ -9,7 +9,7 @@ import withCors from '../../../lib/middlewares/cors.middleware';
 import validateBodyMiddleware from '../../../lib/middlewares/validate-body.middleware';
 import dbConnect from '../../../lib/services/dbConnect'
 import { Password } from '../../../lib/services/password';
-import User, { UserDoc } from '../../../models/user.model';
+import User, { UserDoc } from '../../../lib/models/user.model';
 
 type Data = {
     status: string,

@@ -5,7 +5,7 @@ import api405 from '../../../lib/errors/api-405';
 import api501 from '../../../lib/errors/api-501';
 import withMiddleware, { inlineMiddleware } from '../../../lib/middlewares';
 import dbConnect from '../../../lib/services/dbConnect'
-import { UserDoc } from '../../../models/user.model';
+import { UserDoc } from '../../../lib/models/user.model';
 
 type Data = {
     status: string,

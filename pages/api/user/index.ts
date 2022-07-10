@@ -1,14 +1,14 @@
 import { check, validationResult } from 'express-validator';
 import type { NextApiRequest, NextApiResponse } from 'next'
-import userDao from '../../../lib/dao/user.dao';
-import api500 from '../../../lib/errors/api-500';
-import withMiddleware, {inlineMiddleware} from '../../../lib/middlewares';
+import userDao from '../../../lib/API/dao/user.dao';
+import api500 from '../../../lib/API/errors/api-500';
+import withMiddleware, {inlineMiddleware} from '../../../lib/API/middlewares';
 // import { morganAccessErrorLogging, morganAccessLogging } from '../../../lib/middlewares/morgan.middleware';
-import validateBodyMiddleware from '../../../lib/middlewares/validate-body.middleware';
-import dbConnect from '../../../lib/services/dbConnect';
+import validateBodyMiddleware from '../../../lib/API/middlewares/validate-body.middleware';
+import dbConnect from '../../../lib/API/services/dbConnect';
 import jwt from 'jsonwebtoken'
-import withCors from '../../../lib/middlewares/cors.middleware';
-import api405 from '../../../lib/errors/api-405';
+import withCors from '../../../lib/API/middlewares/cors.middleware';
+import api405 from '../../../lib/API/errors/api-405';
 
 interface IResponse {
     status: string,
@@ -36,15 +36,16 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<IResponse>)  =>
                 ], validationResult)]);
 
             const user = await userDao.createUser(req.body);
+            if (user instanceof Error) return api500(req, res, user);
 
             const userJwt = jwt.sign({
                 id: user.id,
-                email: user.email
+                email: user.email,
+                username: user.username,
+                avatar_url: user.avatar_url
             }, process.env.JWT_KEY!);
 
             req.session = {jwt: userJwt}
-
-            if (user instanceof Error) return api500(req, res, user);
 
            return res.status(201).json({status:'SUCCESS', payload: user});
         default:

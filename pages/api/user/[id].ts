@@ -1,11 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import userDao from '../../../lib/dao/user.dao';
-import api404 from '../../../lib/errors/api-404';
-import api405 from '../../../lib/errors/api-405';
-import api501 from '../../../lib/errors/api-501';
-import withMiddleware, { inlineMiddleware } from '../../../lib/middlewares';
-import dbConnect from '../../../lib/services/dbConnect'
-import { UserDoc } from '../../../lib/models/user.model';
+import userDao from '../../../lib/API/dao/user.dao';
+import api404 from '../../../lib/API/errors/api-404';
+import api405 from '../../../lib/API/errors/api-405';
+import api501 from '../../../lib/API/errors/api-501';
+import withMiddleware, { inlineMiddleware } from '../../../lib/API/middlewares';
+import dbConnect from '../../../lib/API/services/dbConnect'
+import { UserDoc } from '../../../lib/API/models/user.model';
 
 type Data = {
     status: string,

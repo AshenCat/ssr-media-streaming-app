@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import CONSTANTS from "../constants";
+import CONSTANTS from "../../constants";
 import { Password } from "../services/password";
 
 
@@ -8,7 +8,7 @@ interface UserAttrs {
     username: string,
     password: string,
     firstName: string,
-    lastName:string,    
+    lastName:string,
 }
 
 interface UserDoc extends mongoose.Document {

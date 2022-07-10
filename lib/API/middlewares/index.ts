@@ -61,7 +61,7 @@ export default function withMiddleware(next: Function) {
             return next(req, res);
         } catch (error) {
             // if any middleware fails, throws a 400 error
-            return res.status(400).send(error);
+            return res.status(400).json({erors: [{msg: error}]});
         }
 
     }

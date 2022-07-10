@@ -1,11 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import userDao from '../../../lib/dao/user.dao';
-import api400 from '../../../lib/errors/api-400';
-import api405 from '../../../lib/errors/api-405';
-import withMiddleware from '../../../lib/middlewares';
-import withAuth from '../../../lib/middlewares/auth.middleware';
-import withCors from '../../../lib/middlewares/cors.middleware';
-import dbConnect from '../../../lib/services/dbConnect';
+import userDao from '../../../lib/API/dao/user.dao';
+import api400 from '../../../lib/API/errors/api-400';
+import api405 from '../../../lib/API/errors/api-405';
+import withMiddleware from '../../../lib/API/middlewares';
+import withCors from '../../../lib/API/middlewares/cors.middleware';
+import dbConnect from '../../../lib/API/services/dbConnect';
 
 type Data = {
     status: string,
@@ -24,4 +23,4 @@ async function handler (req: NextApiRequest, res: NextApiResponse<Data>) {
     }
 }
 
-export default withMiddleware(withCors(withAuth(handler)))
+export default withMiddleware(withCors(handler))

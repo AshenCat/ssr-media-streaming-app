@@ -8,7 +8,8 @@ declare module 'next' {
         currentUser: {
             id: string,
             email: string,
-            username: string
+            username: string,
+            avatar_url: string
         }
     }
 }
@@ -16,5 +17,6 @@ declare module 'next' {
 export interface ICurrentUser {
     id: string,
     email: string,
-    username: string
+    username: string,
+    avatar_url: string
 }

@@ -1,54 +1,62 @@
 import { check, oneOf, validationResult } from 'express-validator';
 import jwt from 'jsonwebtoken';
 import type { NextApiRequest, NextApiResponse } from 'next'
-import api400 from '../../../lib/errors/api-400';
-import api404 from '../../../lib/errors/api-404';
-import api405 from '../../../lib/errors/api-405';
-import withMiddleware, { inlineMiddleware } from '../../../lib/middlewares';
-import withCors from '../../../lib/middlewares/cors.middleware';
-import validateBodyMiddleware from '../../../lib/middlewares/validate-body.middleware';
-import dbConnect from '../../../lib/services/dbConnect'
-import { Password } from '../../../lib/services/password';
-import User, { UserDoc } from '../../../lib/models/user.model';
+import api400 from '../../../lib/API/errors/api-400';
+import api404 from '../../../lib/API/errors/api-404';
+import api405 from '../../../lib/API/errors/api-405';
+import withMiddleware, { inlineMiddleware } from '../../../lib/API/middlewares';
+import withCors from '../../../lib/API/middlewares/cors.middleware';
+import validateBodyMiddleware from '../../../lib/API/middlewares/validate-body.middleware';
+import dbConnect from '../../../lib/API/services/dbConnect'
+import { Password } from '../../../lib/API/services/password';
+import User, { UserDoc } from '../../../lib/API/models/user.model';
 
 type Data = {
     status: string,
     user: UserDoc
 }
 
-async function handler (req: NextApiRequest, res: NextApiResponse<Data>) {
+async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
     switch (req.method) {
         case 'POST':
-            await dbConnect();
-            await inlineMiddleware(req, res, [
-                validateBodyMiddleware([
-                    oneOf([
-                        check('email').exists().isString(),
-                        check('username').exists().isString()
-                    ], 'email or username is required'),
-                    check('password', 'password is required').trim().notEmpty()
-                ], validationResult)]);
-                
-            const {email, username, password} = req.body;
+            try {
+                await dbConnect();
+                await inlineMiddleware(req, res, [
+                    validateBodyMiddleware([
+                        oneOf([
+                            check('email').exists().isString(),
+                            check('username').exists().isString()
+                        ], 'email or username is required'),
+                        check('password', 'password is required').trim().notEmpty()
+                    ], validationResult)]);
 
-            const user = await User.findOne({$or: [
-                {email: email},
-                {username: username},
-            ]});
+                const { email, username, password } = req.body;
 
-            if (!user || user instanceof Error) return api404(req, res);
+                // can't use Dao because password is needed
+                const user = await User.findOne({
+                    $or: [
+                        { email: email },
+                        { username: username },
+                    ]
+                });
 
-            const passwordsMatch = await Password.compare(user.password, password)
-            if (!passwordsMatch) return api400(req, res, 'Invalid Credentials');
+                if (!user || user instanceof Error) return api400(req, res, 'Invalid Credentials');
 
-            const userJwt = jwt.sign({
-                id: user.id,
-                email: user.email,
-            }, process.env.JWT_KEY!)
+                const passwordsMatch = await Password.compare(user.password, password)
+                if (!passwordsMatch) return api400(req, res, 'Invalid Credentials');
 
-            req.session = {jwt: userJwt}
+                const userJwt = jwt.sign({
+                    id: user.id,
+                    email: user.email,
+                }, process.env.JWT_KEY!)
 
-            return res.status(200).json({status: 'SUCCESS', user: user});
+                req.session = { jwt: userJwt }
+
+                return res.status(200).json({ status: 'SUCCESS', user: user });
+            } catch (err) {
+                console.error(err);
+                return api400(req, res, 'Invalid credentials');
+            }
         default:
             return api405(req, res);
     }

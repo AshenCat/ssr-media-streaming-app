@@ -19,4 +19,6 @@ export interface ICurrentUser {
     email: string,
     username: string,
     avatar_url: string
+    iat?: any,
+    exp?: any
 }

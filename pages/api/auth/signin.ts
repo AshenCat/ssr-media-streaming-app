@@ -9,11 +9,11 @@ import withCors from '../../../lib/API/middlewares/cors.middleware';
 import validateBodyMiddleware from '../../../lib/API/middlewares/validate-body.middleware';
 import dbConnect from '../../../lib/API/services/dbConnect'
 import { Password } from '../../../lib/API/services/password';
-import User, { UserDoc } from '../../../lib/API/models/user.model';
+import User from '../../../lib/API/models/user.model';
 
 type Data = {
     status: string,
-    user: UserDoc
+    payload: any
 }
 
 async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
@@ -24,8 +24,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
                 await inlineMiddleware(req, res, [
                     validateBodyMiddleware([
                         oneOf([
-                            check('email').exists().isString(),
-                            check('username').exists().isString()
+                            check('email').notEmpty().isString(),
+                            check('username').notEmpty().isString()
                         ], 'email or username is required'),
                         check('password', 'password is required').trim().notEmpty()
                     ], validationResult)]);
@@ -48,11 +48,14 @@ async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
                 const userJwt = jwt.sign({
                     id: user.id,
                     email: user.email,
-                }, process.env.JWT_KEY!)
+                    username: user.username,
+                    avatar_url: user.avatar_url
+                }, process.env.JWT_KEY!, { expiresIn: '1d' });
 
-                req.session = { jwt: userJwt }
-
-                return res.status(200).json({ status: 'SUCCESS', user: user });
+                return res.status(200).json({ status: 'SUCCESS', payload: {
+                    user,
+                    token: userJwt
+                } });
             } catch (err) {
                 console.error(err);
                 return api400(req, res, 'Invalid credentials');
